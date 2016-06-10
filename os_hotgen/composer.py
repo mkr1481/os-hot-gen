@@ -20,7 +20,8 @@ http://docs.openstack.org/developer/heat/template_guide/hot_spec.html
 
 import yaml
 
-from tuskar.templates.heat import Resource
+from heat import Function
+from heat import Resource
 
 
 def compose_template(template):
@@ -150,7 +151,8 @@ def _compose_resources(template):
                 if isinstance(p.value, Resource):
                     v = _generate_details(p.value)
                 else:
-                    v = p.value
+                    v = p.value if not isinstance(
+                        p.value, Function) else p.value.to_dict()
                 d['properties'][p.name] = v
 
         return d
@@ -167,7 +169,8 @@ def _compose_outputs(template):
     for o in template.outputs:
         details = {
             'description': o.description,
-            'value': o.value,
+            'value': o.value if not isinstance(
+                o.value, Function) else o.value.to_dict(),
         }
 
         details = _strip_missing(details)

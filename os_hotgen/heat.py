@@ -19,7 +19,7 @@ http://docs.openstack.org/developer/heat/template_guide/hot_spec.html
 
 from os import path
 
-from tuskar.templates import namespace as ns_utils
+import namespace as ns_utils
 
 
 DEFAULT_VERSION = '2014-10-16'
@@ -239,11 +239,11 @@ class ParameterGroup(object):
 
 class Parameter(object):
 
-    def __init__(self, name, param_type,
+    def __init__(self, name, type,
                  description=None, label=None, default=None, hidden=None):
         super(Parameter, self).__init__()
         self.name = name
-        self.param_type = param_type
+        self.param_type = type
         self.description = description
         self.label = label
         self.default = default
@@ -389,6 +389,32 @@ class Output(object):
             'desc': _safe_strip(self.description)
         }
         return msg % data
+
+
+class Function(object):
+    def __init__(self):
+        self.name = self.get_name()
+
+    def get_name(self):
+        return 'undefined'
+
+    def to_dict(self):
+        return {}
+
+
+class FnGetParam(Function):
+    def __init__(self, param_name):
+        super(FnGetParam, self).__init__()
+        self.param_name = param_name
+
+    def get_name(self):
+        return 'get_param'
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):
+        return {self.get_name(): self.param_name}
 
 
 class Environment(object):
