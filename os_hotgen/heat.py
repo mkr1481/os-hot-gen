@@ -24,6 +24,11 @@ import namespace as ns_utils
 
 DEFAULT_VERSION = '2014-10-16'
 
+def check_fn(item):
+    if not isinstance(item, Function):
+        return item
+    else:
+        return item.to_dict()
 
 class Template(object):
 
@@ -416,6 +421,68 @@ class FnGetParam(Function):
     def to_dict(self):
         return {self.get_name(): self.param_name}
 
+
+class FnGetFile(Function):
+    def __init__(self, file_name):
+        super(FnGetFile, self).__init__()
+        self.file_name = file_name
+
+    def get_name(self):
+        return 'get_file'
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):
+        return {self.get_name(): self.file_name}
+
+
+class FnGetAttr(Function):
+    def __init__(self, resource_name, attr_name):
+        super(FnGetAttr, self).__init__()
+        self.resource_name = resource_name
+        self.attr_name = attr_name
+
+    def get_name(self):
+        return 'get_attr'
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):
+        return {self.get_name(): [self.resource_name, self.attr_name]}
+
+
+class FnListJoin(Function):
+    def __init__(self, delimiter, listtojoin):
+        super(FnListJoin, self).__init__()
+        self.delimiter = delimiter
+        self.listtojoin = listtojoin
+
+    def get_name(self):
+        return 'list_join'
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):
+        return {self.get_name(): [self.delimiter, [check_fn(item) for item in self.listtojoin]]}
+
+
+class FnFuncSelect(Function):
+    def __init__(self, index, listofobjs):
+        super(FnFuncSelect, self).__init__()
+        self.index = index
+        self.listofobjs = listofobjs
+
+    def get_name(self):
+        return 'Fn::Select'
+
+    def __str__(self):
+        return str(self.to_dict())
+
+    def to_dict(self):
+        return {self.get_name(): [check_fn(self.index), check_fn(self.listofobjs)]}
 
 class Environment(object):
 
